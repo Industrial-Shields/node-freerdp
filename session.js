@@ -19,8 +19,8 @@ class Session extends EventEmitter {
     this.password = options.password;
     this.domain = options.domain;
     this.port = options.port || 3389;
-    this.width = options.width || 1366;
-    this.height = options.height || 768;
+    this.width = options.width || 800;
+    this.height = options.height || 600;
     this.bitsPerPixel = 24;
     this.certIgnore = options.certIgnore;
   }
@@ -42,6 +42,14 @@ class Session extends EventEmitter {
     if (options.releaseLeft) flags |= PTR_FLAGS_BUTTON1;
     if (options.releaseMiddle) flags |= PTR_FLAGS_BUTTON3;
     if (options.releaseRight) flags |= PTR_FLAGS_BUTTON2;
+
+	  if (typeof options.wheel == 'number') {
+		  const delta = options.wheel & WheelRotationMask;
+		  flags |= PTR_FLAGS_WHEEL | delta;
+		  if (options.wheelNegative) {
+			  flags |= PTR_FLAGS_WHEEL_NEGATIVE;
+		  }
+	  }
 
     if (x !== null && y !== null && flags == 0) {
       flags |= PTR_FLAGS_MOVE;

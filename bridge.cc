@@ -8,7 +8,7 @@ using v8::Local;
 using v8::Number;
 using v8::Value;
 using v8::String;
-using v8::Handle;
+using v8::Local;
 using v8::Array;
 using Nan::Callback;
 using Nan::HandleScope;
@@ -19,9 +19,9 @@ using Nan::To;
 
 NAN_METHOD(Connect) {
   Nan::HandleScope scope;
-  Handle<Value> val;
+  Local<Value> val;
 
-  Handle<Array> jsArray = Handle<Array>::Cast(info[0]);
+  Local<Array> jsArray = Local<Array>::Cast(info[0]);
   char** cstrings = new char*[jsArray->Length() + 1];
 
   std::string tmp = "node-freerdp";
@@ -30,7 +30,7 @@ NAN_METHOD(Connect) {
 
   for (unsigned int i = 0; i < jsArray->Length(); i++) {
     val = jsArray->Get(i);
-    std::string current = std::string(*String::Utf8Value(val));
+    std::string current = std::string(*String::Utf8Value(v8::Isolate::GetCurrent(), val));
     cstrings[i + 1] = new char[current.size() + 1];
     std::strcpy(cstrings[i + 1], current.c_str());
   }
@@ -44,9 +44,9 @@ NAN_METHOD(Connect) {
 NAN_METHOD(SendKeyEventScancode) {
   Nan::HandleScope scope;
 
-  int session_index = info[0]->Uint32Value();
-  int scanCode = info[1]->Uint32Value();
-  int pressed = info[2]->Uint32Value();
+  int session_index = info[0]->Uint32Value(Nan::GetCurrentContext()).ToChecked();
+  int scanCode = info[1]->Uint32Value(Nan::GetCurrentContext()).ToChecked();
+  int pressed = info[2]->Uint32Value(Nan::GetCurrentContext()).ToChecked();
 
   node_freerdp_send_key_event_scancode(session_index, scanCode, pressed);
 }
@@ -54,10 +54,10 @@ NAN_METHOD(SendKeyEventScancode) {
 NAN_METHOD(SendPointerEvent) {
   Nan::HandleScope scope;
 
-  int session_index = info[0]->Uint32Value();
-  int flags = info[1]->Uint32Value();
-  int x = info[2]->Uint32Value();
-  int y = info[3]->Uint32Value();
+  int session_index = info[0]->Uint32Value(Nan::GetCurrentContext()).ToChecked();
+  int flags = info[1]->Uint32Value(Nan::GetCurrentContext()).ToChecked();
+  int x = info[2]->Uint32Value(Nan::GetCurrentContext()).ToChecked();
+  int y = info[3]->Uint32Value(Nan::GetCurrentContext()).ToChecked();
 
   node_freerdp_send_pointer_event(session_index, flags, x, y);
 }
@@ -66,8 +66,8 @@ NAN_METHOD(SendPointerEvent) {
 NAN_METHOD(SetClipboard) {
   Nan::HandleScope scope;
 
-  int session_index = info[0]->Uint32Value();
-  std::string str = std::string(*String::Utf8Value(info[1]));
+  int session_index = info[0]->Uint32Value(Nan::GetCurrentContext()).ToChecked();
+  std::string str = std::string(*String::Utf8Value(v8::Isolate::GetCurrent(), info[1]));
 
   node_freerdp_set_clipboard(session_index, (void*)str.c_str(), str.size());
 }
@@ -75,7 +75,7 @@ NAN_METHOD(SetClipboard) {
 NAN_METHOD(Close) {
   Nan::HandleScope scope;
 
-  int session_index = info[0]->Uint32Value();
+  int session_index = info[0]->Uint32Value(Nan::GetCurrentContext()).ToChecked();
 
   node_freerdp_close(session_index);
 }

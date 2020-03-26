@@ -10,15 +10,15 @@
   "author": "Michael Wasser",
   "license": "BSD",
   "gypfile": true,
-  "repository" : {
-    "type" : "git",
-    "url" : "https://github.com/bloomapi/node-freerdp.git"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/IndustrialShields/node-freerdp.git"
   },
   "devDependencies": {
-    "canvas": "^1.4.0"
+    "canvas": "^2.6.1"
   },
   "dependencies": {
-    "nan": "^2.4.0",
+    "nan": "^2.14.0",
     "node-gyp": "^3.4.0",
     "bindings": "^1.2.1"
   }
