@@ -2,6 +2,7 @@
 	"name": "@industrialshields/freerdp",
 	"version": "0.0.1",
 	"description": "Node.js bindings for libfreerdp / freerdp. Connect to RDP servers with Node.js",
+	"main": "index.js",
 	"scripts": {
 		"install": "node-gyp rebuild"
 	},
