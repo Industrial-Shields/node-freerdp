@@ -1,25 +1,23 @@
 {
-  "name": "freerdp",
-  "version": "0.2.9",
-  "description": "Node.js bindings for libfreerdp / freerdp. Connect to RDP servers with Node.js",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "install": "node-gyp rebuild"
-  },
-  "author": "Michael Wasser",
-  "license": "BSD",
-  "gypfile": true,
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/IndustrialShields/node-freerdp.git"
-  },
-  "devDependencies": {
-    "canvas": "^2.6.1"
-  },
-  "dependencies": {
-    "nan": "^2.14.0",
-    "node-gyp": "^3.4.0",
-    "bindings": "^1.2.1"
-  }
+	"name": "@industrialshields/freerdp",
+	"version": "0.0.1",
+	"description": "Node.js bindings for libfreerdp / freerdp. Connect to RDP servers with Node.js",
+	"scripts": {
+		"install": "node-gyp rebuild"
+	},
+	"author": "Michael Wasser",
+	"license": "BSD",
+	"gypfile": true,
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/IndustrialShields/node-freerdp.git"
+	},
+	"devDependencies": {
+		"canvas": "^2.6.1"
+	},
+	"dependencies": {
+		"nan": "^2.14.0",
+		"node-gyp": "^3.4.0",
+		"bindings": "^1.2.1"
+	}
 }
