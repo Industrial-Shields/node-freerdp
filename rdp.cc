@@ -339,69 +339,68 @@ int tfreerdp_run(thread_data* data)
 
   channels = instance->context->channels;
 
-  freerdp_connect(instance);
+  if (freerdp_connect(instance)) {
+	  while (1) {
+		  rcount = 0;
+		  wcount = 0;
 
-  while (1)
-  {
-    rcount = 0;
-    wcount = 0;
+		  if (freerdp_get_fds(instance, rfds, &rcount, wfds, &wcount) != TRUE)
+		  {
+			  printf("Failed to get FreeRDP file descriptor\n");
+			  break;
+		  }
+		  if (freerdp_channels_get_fds(channels, instance, rfds, &rcount, wfds, &wcount) != TRUE)
+		  {
+			  printf("Failed to get channel manager file descriptor\n");
+			  break;
+		  }
 
-    if (freerdp_get_fds(instance, rfds, &rcount, wfds, &wcount) != TRUE)
-    {
-      printf("Failed to get FreeRDP file descriptor\n");
-      break;
-    }
-    if (freerdp_channels_get_fds(channels, instance, rfds, &rcount, wfds, &wcount) != TRUE)
-    {
-      printf("Failed to get channel manager file descriptor\n");
-      break;
-    }
+		  max_fds = 0;
+		  FD_ZERO(&rfds_set);
+		  FD_ZERO(&wfds_set);
 
-    max_fds = 0;
-    FD_ZERO(&rfds_set);
-    FD_ZERO(&wfds_set);
+		  for (i = 0; i < rcount; i++)
+		  {
+			  fds = (int)(long)(rfds[i]);
 
-    for (i = 0; i < rcount; i++)
-    {
-      fds = (int)(long)(rfds[i]);
+			  if (fds > max_fds)
+				  max_fds = fds;
 
-      if (fds > max_fds)
-        max_fds = fds;
+			  FD_SET(fds, &rfds_set);
+		  }
 
-      FD_SET(fds, &rfds_set);
-    }
+		  if (max_fds == 0)
+			  break;
 
-    if (max_fds == 0)
-      break;
+		  if (select(max_fds + 1, &rfds_set, &wfds_set, NULL, &tv) == -1)
+		  {
+			  /* these are not really errors */
+			  if (!((errno == EAGAIN) ||
+						  (errno == EWOULDBLOCK) ||
+						  (errno == EINPROGRESS) ||
+						  (errno == EINTR))) /* signal occurred */
+			  {
+				  printf("tfreerdp_run: select failed\n");
+				  break;
+			  }
+		  }
 
-    if (select(max_fds + 1, &rfds_set, &wfds_set, NULL, &tv) == -1)
-    {
-      /* these are not really errors */
-      if (!((errno == EAGAIN) ||
-        (errno == EWOULDBLOCK) ||
-        (errno == EINPROGRESS) ||
-        (errno == EINTR))) /* signal occurred */
-      {
-        printf("tfreerdp_run: select failed\n");
-        break;
-      }
-    }
+		  if (freerdp_check_fds(instance) != TRUE)
+		  {
+			  printf("Failed to check FreeRDP file descriptor\n");
+			  break;
+		  }
+		  if (freerdp_channels_check_fds(channels, instance) != TRUE)
+		  {
+			  printf("Failed to check channel manager file descriptor\n");
+			  break;
+		  }
+		  node_process_channel_event(channels, instance);
 
-    if (freerdp_check_fds(instance) != TRUE)
-    {
-      printf("Failed to check FreeRDP file descriptor\n");
-      break;
-    }
-    if (freerdp_channels_check_fds(channels, instance) != TRUE)
-    {
-      printf("Failed to check channel manager file descriptor\n");
-      break;
-    }
-    node_process_channel_event(channels, instance);
-
-    if (data->stopping) { // thread signaled to shutdown
-      break;
-    }
+		  if (data->stopping) { // thread signaled to shutdown
+			  break;
+		  }
+	  }
   }
 
   nodeContext *nc = (nodeContext*)instance->context;
@@ -412,8 +411,6 @@ int tfreerdp_run(thread_data* data)
 
   free(nc->generatorContext);
 
-  freerdp_channels_close(channels, instance);
-  freerdp_channels_free(channels);
   freerdp_free(instance);
 
   return 0;
